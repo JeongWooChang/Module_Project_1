@@ -1,0 +1,35 @@
+version: '3.7'
+services: 
+  web:
+    build: .
+    container_name: php73
+    depends_on: 
+     - crawling
+    volumes: 
+      - .:/var/www/html/
+    ports:
+      - 8282:80
+  db:
+    container_name: mysql5
+    hostname: db
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: devuser
+      MYSQL_PASSWORD: devpass
+    ports:
+      - 3306:3306
+
+  crawling:
+    build: ./crawling
+    hostname: crawling
+    depends_on: 
+      - db
+    environment:
+      crawling_DB_HOST: db:3306
+    ports:
+      - 9999:9999
+    links:
+      - db
